@@ -18,10 +18,10 @@ namespace Arrowgene.WebServer
         private readonly WebRouter _router;
         private readonly IWebServerCore _serverCore;
 
-        public WebService(WebSetting setting, IWebServerCore serverCore)
+        public WebService(IWebServerCore serverCore)
         {
             _serverCore = serverCore;
-            _router = new WebRouter(setting);
+            _router = new WebRouter(serverCore.Setting);
             _serverCore.SetHandler(this);
             _middlewareStack = new WebMiddlewareStack(_router.Route);
         }

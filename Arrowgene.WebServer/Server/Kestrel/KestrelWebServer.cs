@@ -39,6 +39,8 @@ namespace Arrowgene.WebServer.Server.Kestrel
             _setting = setting;
             _cancellationTokenSource = new CancellationTokenSource();
         }
+        
+        WebSetting IWebServerCore.Setting => _setting;
 
         public void SetHandler(IWebServerHandler handler)
         {
@@ -134,7 +136,7 @@ namespace Arrowgene.WebServer.Server.Kestrel
             _applicationLifetime?.NotifyStopped();
             HostingEventSource.Log.HostStop();
         }
-
+        
         /// <summary>
         ///     Called whenever a web request arrives.
         ///     - Maps Kestrel HttpRequest/HttpResponse to WebRequest/WebResponse

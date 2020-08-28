@@ -10,5 +10,6 @@ namespace Arrowgene.WebServer.Server
         void SetHandler(IWebServerHandler handler);
         Task Start();
         Task Stop();
+        WebSetting Setting { get; }
     }
 }
