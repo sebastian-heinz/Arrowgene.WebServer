@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Runtime.Serialization;
 
 namespace Arrowgene.WebServer
@@ -10,14 +9,13 @@ namespace Arrowgene.WebServer
         public WebSetting()
         {
             ServerHeader = null;
-            WebFolder = Path.Combine(Util.ExecutingDirectory(), "Files/www");
+            WebFolder = "";
             HttpPorts = new List<ushort>();
             HttpPorts.Add(80);
-            HttpPorts.Add(12401);
-            HttpsEnabled = true;
+            HttpsEnabled = false;
             HttpsPort = 443;
-            HttpsCertPath = Path.Combine(Util.ExecutingDirectory(), "Files/mihoyo.com.pfx");
-            HttpsCertPw = "arrow";
+            HttpsCertPath = "";
+            HttpsCertPw = "";
         }
 
         public WebSetting(WebSetting webSetting)
