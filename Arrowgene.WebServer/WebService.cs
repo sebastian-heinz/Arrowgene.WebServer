@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Arrowgene.Logging;
 using Arrowgene.WebServer.Middleware;
 using Arrowgene.WebServer.Route;
@@ -9,15 +10,15 @@ namespace Arrowgene.WebServer
     /// <summary>
     ///     Manages web requests
     /// </summary>
-    public class WebServer : IWebServerHandler
+    public class WebService : IWebServerHandler
     {
-        private static readonly ILogger Logger = LogProvider.Logger(typeof(WebServer));
+        private static readonly ILogger Logger = LogProvider.Logger(typeof(WebService));
 
         private readonly WebMiddlewareStack _middlewareStack;
         private readonly WebRouter _router;
         private readonly IWebServerCore _serverCore;
 
-        public WebServer(WebSetting setting, IWebServerCore serverCore)
+        public WebService(WebSetting setting, IWebServerCore serverCore)
         {
             _serverCore = serverCore;
             _router = new WebRouter(setting);
