@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Arrowgene.WebServer.Route
 {
@@ -13,5 +14,6 @@ namespace Arrowgene.WebServer.Route
         Task<WebResponse> Put(WebRequest request);
         Task<WebResponse> Delete(WebRequest request);
         Task<WebResponse> Head(WebRequest request);
+        public List<WebRequestMethod> GetMethods();
     }
 }

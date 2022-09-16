@@ -1,14 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using Arrowgene.Logging;
 using Arrowgene.WebServer;
+using Arrowgene.WebServer.Route;
 using Arrowgene.WebServer.Server.Kestrel;
+using Arrowgene.WebServer.Simple;
+using Arrowgene.WebServer.WebMiddleware;
+using Microsoft.Extensions.FileProviders;
 
 LogProvider.OnLogWrite += (sender, eventArgs) => Console.WriteLine(eventArgs.Log);
 LogProvider.Start();
-
 WebSetting s = new WebSetting();
 WebService service = new WebService(new KestrelWebServer(s));
-await service.Start();
 
+IWebRoute indexRoute = new IndexRoute();
+List<WebRequestMethod> methods = indexRoute.GetMethods();
+service.AddRoute(indexRoute);
+
+StaticFileMiddleware middleware = new StaticFileMiddleware(new PhysicalFileProvider("C:\\Users\\railgun\\dev\\Arrowgene.WebServer"));
+middleware.GetServingFiles();
+service.AddMiddleware(middleware);
+
+await service.Start();
 LogProvider.Stop();
 Console.WriteLine("Done");

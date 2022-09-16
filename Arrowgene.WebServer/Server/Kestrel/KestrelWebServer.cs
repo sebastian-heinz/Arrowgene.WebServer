@@ -12,10 +12,9 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using ILogger = Arrowgene.Logging.ILogger;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Arrowgene.WebServer.Server.Kestrel
 {
@@ -24,7 +23,8 @@ namespace Arrowgene.WebServer.Server.Kestrel
     /// </summary>
     public class KestrelWebServer : IWebServerCore
     {
-        private static readonly ILogger Logger = LogProvider.Logger(typeof(KestrelWebServer));
+        private static readonly ILogger Logger = LogProvider.Logger(typeof(KestrelLogger));
+
 
         private IHostApplicationLifetime _applicationLifetime;
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -40,91 +40,88 @@ namespace Arrowgene.WebServer.Server.Kestrel
         }
 
         WebSetting IWebServerCore.Setting => _setting;
-        
+
         public async Task Start(IWebServerHandler handler)
         {
-            if (handler == null)
+            try
             {
-                throw new Exception("Missing Handler - Call SetHandler()");
-            }
-
-            ServiceCollection services = new ServiceCollection();
-            services.AddLogging(b =>
-            {
-                b.AddConsole();
-                b.AddFilter("Microsoft.AspNetCore.Server.Kestrel", LogLevel.Warning);
-            });
-
-            ILoggerFactory loggerFactory = new LoggerFactory();
-            loggerFactory.AddProvider(new KestrelLoggerProvider());
-            services.AddSingleton(loggerFactory);
-
-            services.Configure<KestrelServerOptions>(options =>
-            {
-                foreach (uint httpPort in _setting.HttpPorts)
+                if (handler == null)
                 {
-                    options.ListenAnyIP((int)httpPort);
+                    throw new Exception("IWebServerHandler is null");
                 }
 
-                if (_setting.HttpsEnabled)
-                    options.ListenAnyIP(_setting.HttpsPort,
-                        listenOptions =>
+                ServiceCollection services = new ServiceCollection();
+                services.AddLogging();
+                services.Configure<KestrelServerOptions>(options =>
+                {
+                    foreach (WebEndPoint webEndPoint in _setting.WebEndpoints)
+                    {
+                        if (webEndPoint.IsHttps)
                         {
-                            var cert = new X509Certificate2(_setting.HttpsCertPath,
-                                _setting.HttpsCertPw);
-                            listenOptions.UseHttps(new HttpsConnectionAdapterOptions
-                            {
-                                ServerCertificate = cert
-                                //  SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls
-                            });
-                        });
-                // kestrelServerOptions.Value.ListenAnyIP(_setting.WebSetting.HttpsPort);
+                            options.Listen(
+                                webEndPoint.IpAddress,
+                                webEndPoint.Port,
+                                listenOptions =>
+                                {
+                                    var cert = new X509Certificate2(
+                                        webEndPoint.HttpsCertPath,
+                                        webEndPoint.HttpsCertPw
+                                    );
+                                    listenOptions.UseHttps(new HttpsConnectionAdapterOptions
+                                    {
+                                        ServerCertificate = cert,
+                                        SslProtocols = webEndPoint.SslProtocols
+                                    });
+                                }
+                            );
+                        }
+                        else
+                        {
+                            options.Listen(webEndPoint.IpAddress, webEndPoint.Port);
+                        }
+                    }
 
-                options.AddServerHeader = false;
-            });
+                    options.AddServerHeader = false;
+                });
+
+                ILoggerFactory loggerFactory = new LoggerFactory();
+                loggerFactory.AddProvider(new KestrelLoggerProvider());
+
+                services.AddSingleton(loggerFactory);
+                services.AddSingleton<IServer, KestrelServer>();
+                services.AddSingleton<IConnectionListenerFactory, SocketTransportFactory>();
+                services.AddSingleton<IWebServerHandler>(handler);
+                services.AddSingleton<IHostApplicationLifetime, ApplicationLifetime>();
+                services.AddTransient<IHttpContextFactory, DefaultHttpContextFactory>();
+                services.AddTransient<KestrelApplication>();
 
 
-            services.AddSingleton<IServer, KestrelServer>();
-            services.AddSingleton<IConnectionListenerFactory, SocketTransportFactory>();
-            services.AddSingleton<IWebServerHandler>(handler);
-            // services.AddSingleton<ITransportFactory, LibuvTransportFactory>();
-            // services.AddSingleton<Microsoft.Extensions.Hosting.IHostApplicationLifetime, GenericWebHostApplicationLifetime>();
-            services.AddTransient<IHttpContextFactory, DefaultHttpContextFactory>();
-            services.AddTransient<KestrelApplication>();
+                ServiceProvider serviceProvider = services.BuildServiceProvider();
+                _server = serviceProvider.GetRequiredService<IServer>();
+                _applicationLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
+                KestrelApplication application = serviceProvider.GetRequiredService<KestrelApplication>();
 
-            ServiceProvider serviceProvider = services.BuildServiceProvider();
-            _server = serviceProvider.GetRequiredService<IServer>();
-            KestrelApplication application = serviceProvider.GetRequiredService<KestrelApplication>();
+                await _server.StartAsync(application, _cancellationTokenSource.Token);
 
-           // await server.StartAsync(application, default).ConfigureAwait(false);
-
-
-            IOptions<SocketTransportOptions> socketTransportOptions = Options.Create(new SocketTransportOptions());
-            //  _applicationLifetime = new ApplicationLifetime(
-            //      loggerFactory.CreateLogger<ApplicationLifetime>()
-            //  );
-            //IConnectionListenerFactory transportFactory = new SocketTransportFactory(
-           //     socketTransportOptions, loggerFactory
-           //);
-
-
-            var kestrelStartup = _server.StartAsync(application, _cancellationTokenSource.Token);
-            await kestrelStartup;
-            _cancellationTokenSource.Token.Register(
-                state => ((IHostApplicationLifetime)state).StopApplication(),
-                _applicationLifetime
-            );
-            var completionSource = new TaskCompletionSource<object>(
-                TaskCreationOptions.RunContinuationsAsynchronously
-            );
-          //_applicationLifetime.ApplicationStopping.Register(
-          //    obj => ((TaskCompletionSource<object>)obj).TrySetResult(null),
-          //    completionSource
-          //);
-            var kestrelCompleted = completionSource.Task;
-            var kestrelCompletedResult = await kestrelCompleted;
-            var kestrelShutdown = _server.StopAsync(new CancellationToken());
-            await kestrelShutdown;
+                _cancellationTokenSource.Token.Register(
+                    state => ((IHostApplicationLifetime)state).StopApplication(),
+                    _applicationLifetime
+                );
+                var completionSource = new TaskCompletionSource<object>(
+                    TaskCreationOptions.RunContinuationsAsynchronously
+                );
+                _applicationLifetime.ApplicationStopping.Register(
+                    obj => ((TaskCompletionSource<object>)obj).TrySetResult(null),
+                    completionSource
+                );
+                await completionSource.Task;
+                await _server.StopAsync(new CancellationToken());
+            }
+            catch (Exception ex)
+            {
+                Logger.Exception(ex);
+                throw;
+            }
         }
 
         public async Task Stop()
@@ -134,29 +131,6 @@ namespace Arrowgene.WebServer.Server.Kestrel
             if (_server != null)
             {
                 await _server.StopAsync(token).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
-        ///     Called whenever a web request arrives.
-        ///     - Maps Kestrel HttpRequest/HttpResponse to WebRequest/WebResponse
-        ///     - Calls router to handle the request
-        /// </summary>
-        private async Task RequestDelegate(HttpContext context)
-        {
-         
-        }
-
-        private IServiceProvider GetProviderFromFactory(IServiceCollection collection)
-        {
-            var provider = collection.BuildServiceProvider();
-            var service =
-                provider.GetService<IServiceProviderFactory<IServiceCollection>>();
-            if (service == null || service is DefaultServiceProviderFactory) return provider;
-
-            using (provider)
-            {
-                return service.CreateServiceProvider(service.CreateBuilder(collection));
             }
         }
     }
