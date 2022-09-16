@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using System.Threading.Tasks;
 using Arrowgene.Logging;
 using Arrowgene.WebServer.Middleware;
 using Arrowgene.WebServer.Route;
@@ -22,7 +21,6 @@ namespace Arrowgene.WebServer
         {
             _serverCore = serverCore;
             _router = new WebRouter(serverCore.Setting);
-            _serverCore.SetHandler(this);
             _middlewareStack = new WebMiddlewareStack(_router.Route);
         }
 
@@ -39,7 +37,7 @@ namespace Arrowgene.WebServer
 
         public async Task Start()
         {
-            await _serverCore.Start();
+            await _serverCore.Start(this);
         }
 
         public async Task Stop()

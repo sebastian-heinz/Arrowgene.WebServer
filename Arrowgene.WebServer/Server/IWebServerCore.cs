@@ -7,8 +7,7 @@ namespace Arrowgene.WebServer.Server
     /// </summary>
     public interface IWebServerCore
     {
-        void SetHandler(IWebServerHandler handler);
-        Task Start();
+        Task Start(IWebServerHandler handler);
         Task Stop();
         WebSetting Setting { get; }
     }

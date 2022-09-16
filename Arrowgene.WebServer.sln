@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arrowgene.WebServer", "Arrowgene.WebServer\Arrowgene.WebServer.csproj", "{EE92BBD1-E03A-4A75-90C3-47EDB389B566}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arrowgene.WebServer.Simple", "Arrowgene.WebServer.Simple\Arrowgene.WebServer.Simple.csproj", "{2F5840E1-89F7-40E3-97D1-DFF83092835C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{EE92BBD1-E03A-4A75-90C3-47EDB389B566}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE92BBD1-E03A-4A75-90C3-47EDB389B566}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE92BBD1-E03A-4A75-90C3-47EDB389B566}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F5840E1-89F7-40E3-97D1-DFF83092835C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F5840E1-89F7-40E3-97D1-DFF83092835C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F5840E1-89F7-40E3-97D1-DFF83092835C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F5840E1-89F7-40E3-97D1-DFF83092835C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

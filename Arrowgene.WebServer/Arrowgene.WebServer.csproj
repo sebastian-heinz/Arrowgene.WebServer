@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>Arrowgene.WebServer</RootNamespace>
         <Title>Arrowgene.WebServer</Title>
         <Company>Arrowgene</Company>
@@ -16,9 +16,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-        <PackageReference Include="Arrowgene.Logging" Version="1.1.1" />
+        <PackageReference Include="Arrowgene.Logging" Version="1.1.2" />
         <PackageReference Include="System.Text.Json" Version="4.7.0" />
     </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
 
 </Project>

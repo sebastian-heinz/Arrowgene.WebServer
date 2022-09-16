@@ -8,11 +8,9 @@ namespace Arrowgene.WebServer.WebMiddleware
     public class StaticFileMiddleware : IWebMiddleware
     {
         private readonly IFileProvider _provider;
-        private string _root;
 
-        public StaticFileMiddleware(string root, IFileProvider provider)
+        public StaticFileMiddleware(IFileProvider provider)
         {
-            _root = root;
             _provider = provider;
         }
 
