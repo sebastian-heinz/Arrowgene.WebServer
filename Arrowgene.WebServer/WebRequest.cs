@@ -87,13 +87,15 @@ namespace Arrowgene.WebServer
 
         public async Task<T> ReadJsonAsync<T>()
         {
-            var json = await ReadStringAsync(Encoding.UTF8);
-            return JsonSerializer.Deserialize<T>(json);
+            return await JsonSerializer.DeserializeAsync<T>(Body);
         }
 
         public async Task<string> ReadStringAsync(Encoding encoding)
         {
-            if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+            if (encoding == null)
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
 
             Body.Position = 0;
             var body = await Util.ReadAsync(Body);

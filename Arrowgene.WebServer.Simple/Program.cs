@@ -16,6 +16,7 @@ WebService service = new WebService(new KestrelWebServer(s));
 IWebRoute indexRoute = new IndexRoute();
 List<WebRequestMethod> methods = indexRoute.GetMethods();
 service.AddRoute(indexRoute);
+service.AddRoute(new JsonRoute());
 
 StaticFileMiddleware staticFiles = new StaticFileMiddleware(new PhysicalFileProvider("C:\\Users\\railgun\\dev\\Arrowgene.WebServer"));
 List<string> files = staticFiles.GetServingFilesPath();

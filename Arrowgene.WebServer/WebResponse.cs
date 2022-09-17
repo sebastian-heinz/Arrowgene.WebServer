@@ -61,9 +61,14 @@ namespace Arrowgene.WebServer
             return WriteAsync(text, Encoding.UTF8, contentLength);
         }
 
-        public Task WriteJsonAsync<T>(T obj, bool contentLength = true)
+        public async Task WriteJsonAsync<T>(T obj, bool contentLength = true)
         {
-            return WriteAsync(JsonSerializer.Serialize(obj), contentLength);
+            long pos = Body.Position;
+            await JsonSerializer.SerializeAsync(Body, obj);
+            if (contentLength)
+            {
+                Header.Add("content-length", $"{Body.Length - pos}");
+            }
         }
 
         public Task WriteAsync(string text, Encoding encoding, bool contentLength = true)
