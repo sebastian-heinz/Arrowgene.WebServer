@@ -15,6 +15,7 @@ namespace Arrowgene.WebServer
             HttpsCertPath = "";
             HttpsCertPw = "";
             SslProtocols = SslProtocols.None;
+            DomainName = "";
         }
 
         public WebEndPoint(WebEndPoint webEndPoint)
@@ -25,6 +26,13 @@ namespace Arrowgene.WebServer
             HttpsCertPath = webEndPoint.HttpsCertPath;
             HttpsCertPw = webEndPoint.HttpsCertPw;
             SslProtocols = webEndPoint.SslProtocols;
+            DomainName = webEndPoint.DomainName;
+        }
+
+        public string GetUrl()
+        {
+            return
+                $"{(IsHttps ? "https" : "http")}://{(string.IsNullOrWhiteSpace(DomainName) ? IpAddress : DomainName)}:{Port}";
         }
 
         [IgnoreDataMember] public IPAddress IpAddress { get; set; }
@@ -37,10 +45,10 @@ namespace Arrowgene.WebServer
         }
 
         [DataMember(Order = 1)] public ushort Port { get; set; }
-
         [DataMember(Order = 2)] public bool IsHttps { get; set; }
         [DataMember(Order = 3)] public string HttpsCertPath { get; set; }
         [DataMember(Order = 4)] public string HttpsCertPw { get; set; }
         [DataMember(Order = 5)] public SslProtocols SslProtocols { get; set; }
+        [DataMember(Order = 6)] public string DomainName { get; set; }
     }
 }

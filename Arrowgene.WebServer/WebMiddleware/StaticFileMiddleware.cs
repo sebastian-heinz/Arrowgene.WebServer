@@ -22,17 +22,14 @@ namespace Arrowgene.WebServer.WebMiddleware
             return files;
         }
 
-        public List<string> GetServingFilesUrl(List<WebEndPoint> webEndPoints)
+        public List<string> GetServingFilesUrl(WebEndPoint webEndPoint)
         {
             List<string> servedFiles = new List<string>();
-            foreach (WebEndPoint webEndPoint in webEndPoints)
+            foreach (string filePath in GetServingFilesPath())
             {
-                foreach (string filePath in GetServingFilesPath())
-                {
-                    string webPath = filePath.Replace("\\", "/");
-                    servedFiles.Add(
-                        $"[GET] {(webEndPoint.IsHttps ? "https" : "http")}://{webEndPoint.IpAddress}:{webEndPoint.Port}/{webPath}");
-                }
+                string webPath = filePath.Replace("\\", "/");
+                servedFiles.Add(
+                    $"[GET] {(webEndPoint.IsHttps ? "https" : "http")}://{webEndPoint.IpAddress}:{webEndPoint.Port}/{webPath}");
             }
 
             return servedFiles;

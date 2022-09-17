@@ -62,9 +62,9 @@ namespace Arrowgene.WebServer
             // );
         }
 
-        public List<string> GetServingRoutes()
+        public List<string> GetServingRoutes(WebEndPoint webEndPoint)
         {
-            return _router.GetServingRoutes();
+            return _router.GetServingRoutes(webEndPoint);
         }
     }
 }

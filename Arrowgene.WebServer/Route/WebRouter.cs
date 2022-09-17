@@ -28,20 +28,17 @@ namespace Arrowgene.WebServer.Route
             _routes.Add(route.Route, route);
         }
 
-        public List<string> GetServingRoutes()
+        public List<string> GetServingRoutes(WebEndPoint webEndPoint)
         {
             List<string> routes = new List<string>();
-            foreach (WebEndPoint webEndPoint in _setting.WebEndpoints)
+            foreach (string routeKey in _routes.Keys)
             {
-                foreach (string routeKey in _routes.Keys)
+                IWebRoute route = _routes[routeKey];
+                List<WebRequestMethod> methods = route.GetMethods();
+                foreach (WebRequestMethod method in methods)
                 {
-                    IWebRoute route = _routes[routeKey];
-                    List<WebRequestMethod> methods = route.GetMethods();
-                    foreach (WebRequestMethod method in methods)
-                    {
-                        routes.Add(
-                            $"[{method}] {(webEndPoint.IsHttps ? "https" : "http")}://{webEndPoint.IpAddress}:{webEndPoint.Port}{route.Route}");
-                    }
+                    routes.Add(
+                        $"[{method}] {(webEndPoint.IsHttps ? "https" : "http")}://{webEndPoint.IpAddress}:{webEndPoint.Port}{route.Route}");
                 }
             }
 

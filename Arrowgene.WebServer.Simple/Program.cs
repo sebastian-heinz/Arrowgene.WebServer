@@ -22,8 +22,8 @@ StaticFileMiddleware staticFiles = new StaticFileMiddleware(new PhysicalFileProv
 List<string> files = staticFiles.GetServingFilesPath();
 service.AddMiddleware(staticFiles);
 
-List<string> servRoutes = service.GetServingRoutes();
-List<string> servStatic = staticFiles.GetServingFilesUrl(s.WebEndpoints);
+List<string> servRoutes = service.GetServingRoutes(s.WebEndpoints[0]);
+List<string> servStatic = staticFiles.GetServingFilesUrl(s.WebEndpoints[0]);
 
 await service.Start();
 LogProvider.Stop();
