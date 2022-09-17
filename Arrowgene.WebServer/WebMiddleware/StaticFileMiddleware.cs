@@ -29,7 +29,7 @@ namespace Arrowgene.WebServer.WebMiddleware
             {
                 string webPath = filePath.Replace("\\", "/");
                 servedFiles.Add(
-                    $"[GET] {(webEndPoint.IsHttps ? "https" : "http")}://{webEndPoint.IpAddress}:{webEndPoint.Port}/{webPath}");
+                    $"[GET] {webEndPoint.GetUrl()}/{webPath}");
             }
 
             return servedFiles;

@@ -38,7 +38,7 @@ namespace Arrowgene.WebServer.Route
                 foreach (WebRequestMethod method in methods)
                 {
                     routes.Add(
-                        $"[{method}] {(webEndPoint.IsHttps ? "https" : "http")}://{webEndPoint.IpAddress}:{webEndPoint.Port}{route.Route}");
+                        $"[{method}] {webEndPoint.GetUrl()}{route.Route}");
                 }
             }
 
