@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Arrowgene.Logging;
 using Arrowgene.WebServer.Middleware;
 using Arrowgene.WebServer.Route;
@@ -59,6 +60,11 @@ namespace Arrowgene.WebServer
             //         return next(req);
             //     }
             // );
+        }
+
+        public List<string> GetServingRoutes()
+        {
+            return _router.GetServingRoutes();
         }
     }
 }

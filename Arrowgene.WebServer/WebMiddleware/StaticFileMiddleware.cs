@@ -15,30 +15,46 @@ namespace Arrowgene.WebServer.WebMiddleware
             _provider = provider;
         }
 
-        public List<IFileInfo> GetServingFiles()
+        public List<string> GetServingFilesPath()
         {
-            List<IFileInfo> files = new List<IFileInfo>();
+            List<string> files = new List<string>();
             GetServingFiles("", files);
             return files;
         }
 
-        public void GetServingFiles(string folder, List<IFileInfo> files)
+        public List<string> GetServingFilesUrl(List<WebEndPoint> webEndPoints)
+        {
+            List<string> servedFiles = new List<string>();
+            foreach (WebEndPoint webEndPoint in webEndPoints)
+            {
+                foreach (string filePath in GetServingFilesPath())
+                {
+                    string webPath = filePath.Replace("\\", "/");
+                    servedFiles.Add(
+                        $"[GET] {(webEndPoint.IsHttps ? "https" : "http")}://{webEndPoint.IpAddress}:{webEndPoint.Port}/{webPath}");
+                }
+            }
+
+            return servedFiles;
+        }
+
+        private void GetServingFiles(string folder, List<string> files)
         {
             IDirectoryContents directoryContents = _provider.GetDirectoryContents(folder);
             foreach (IFileInfo fileInfo in directoryContents)
             {
                 if (fileInfo.IsDirectory)
                 {
-                    string nextFolder = Path.Combine(folder, fileInfo.Name);
-                    GetServingFiles(nextFolder, files);
+                    string folderPath = Path.Combine(folder, fileInfo.Name);
+                    GetServingFiles(folderPath, files);
                 }
                 else
                 {
-                    files.Add(fileInfo);
+                    string filePath = Path.Combine(folder, fileInfo.Name);
+                    files.Add(filePath);
                 }
             }
         }
-
 
         public async Task<WebResponse> Handle(WebRequest request, WebMiddlewareDelegate next)
         {

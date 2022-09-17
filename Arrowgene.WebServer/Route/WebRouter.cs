@@ -19,13 +19,33 @@ namespace Arrowgene.WebServer.Route
             _setting = setting;
             _routes = new Dictionary<string, IWebRoute>();
         }
-        
+
         /// <summary>
         ///     Adds a handler for a specific route.
         /// </summary>
         public void AddRoute(IWebRoute route)
         {
             _routes.Add(route.Route, route);
+        }
+
+        public List<string> GetServingRoutes()
+        {
+            List<string> routes = new List<string>();
+            foreach (WebEndPoint webEndPoint in _setting.WebEndpoints)
+            {
+                foreach (string routeKey in _routes.Keys)
+                {
+                    IWebRoute route = _routes[routeKey];
+                    List<WebRequestMethod> methods = route.GetMethods();
+                    foreach (WebRequestMethod method in methods)
+                    {
+                        routes.Add(
+                            $"[{method}] {(webEndPoint.IsHttps ? "https" : "http")}://{webEndPoint.IpAddress}:{webEndPoint.Port}{route.Route}");
+                    }
+                }
+            }
+
+            return routes;
         }
 
         /// <summary>
@@ -75,7 +95,7 @@ namespace Arrowgene.WebServer.Route
                 {
                     response.Header.Add("Server", _setting.ServerHeader);
                 }
-                
+
                 return response;
             }
 

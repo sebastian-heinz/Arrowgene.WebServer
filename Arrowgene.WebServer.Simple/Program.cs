@@ -17,9 +17,12 @@ IWebRoute indexRoute = new IndexRoute();
 List<WebRequestMethod> methods = indexRoute.GetMethods();
 service.AddRoute(indexRoute);
 
-StaticFileMiddleware middleware = new StaticFileMiddleware(new PhysicalFileProvider("C:\\Users\\railgun\\dev\\Arrowgene.WebServer"));
-middleware.GetServingFiles();
-service.AddMiddleware(middleware);
+StaticFileMiddleware staticFiles = new StaticFileMiddleware(new PhysicalFileProvider("C:\\Users\\railgun\\dev\\Arrowgene.WebServer"));
+List<string> files = staticFiles.GetServingFilesPath();
+service.AddMiddleware(staticFiles);
+
+List<string> servRoutes = service.GetServingRoutes();
+List<string> servStatic = staticFiles.GetServingFilesUrl(s.WebEndpoints);
 
 await service.Start();
 LogProvider.Stop();

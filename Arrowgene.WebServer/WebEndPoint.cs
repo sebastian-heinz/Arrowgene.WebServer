@@ -9,7 +9,7 @@ namespace Arrowgene.WebServer
     {
         public WebEndPoint()
         {
-            IpAddress = IPAddress.Any;
+            IpAddress = IPAddress.Loopback;
             Port = 80;
             IsHttps = false;
             HttpsCertPath = "";

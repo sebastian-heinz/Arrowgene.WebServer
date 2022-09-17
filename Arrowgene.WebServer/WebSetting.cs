@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 using System.Runtime.Serialization;
 
 namespace Arrowgene.WebServer
@@ -12,12 +11,7 @@ namespace Arrowgene.WebServer
             ServerHeader = null;
             WebFolder = "";
             WebEndpoints = new List<WebEndPoint>();
-            WebEndpoints.Add(new WebEndPoint()
-            {
-                IpAddress = IPAddress.Any,
-                Port = 80,
-                IsHttps = false
-            });
+            WebEndpoints.Add(new WebEndPoint());
         }
 
         public WebSetting(WebSetting webSetting)
