@@ -61,8 +61,8 @@ namespace Arrowgene.WebServer.WebMiddleware
                 var file = _provider.GetFileInfo(request.Path);
                 if (file.Exists)
                 {
-                    response.RouteFound = true;
                     response = new WebResponse();
+                    response.RouteFound = true;
                     response.StatusCode = 200;
                     string mimeType = MimeTypeMap.GetMimeType(Path.GetExtension(file.Name));
                     response.Header.Add("content-type", mimeType);
