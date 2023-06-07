@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Arrowgene.Logging;
 
@@ -57,46 +58,65 @@ namespace Arrowgene.WebServer.Route
                 return await WebResponse.InternalServerError();
             }
 
-            if (_routes.ContainsKey(request.Path))
+            IWebRoute route = RouteMatcher(request);
+            if (route == null)
             {
-                var route = _routes[request.Path];
-                Task<WebResponse> responseTask = null;
-                switch (request.Method)
-                {
-                    case WebRequestMethod.Get:
-                        responseTask = route.Get(request);
-                        break;
-                    case WebRequestMethod.Post:
-                        responseTask = route.Post(request);
-                        break;
-                    case WebRequestMethod.Put:
-                        responseTask = route.Put(request);
-                        break;
-                    case WebRequestMethod.Delete:
-                        responseTask = route.Delete(request);
-                        break;
-                    case WebRequestMethod.Head:
-                        responseTask = route.Head(request);
-                        break;
-                }
-
-                if (responseTask == null)
-                {
-                    Logger.Info($"Request method: {request.Method} not supported for requested path: {request.Path}");
-                    return await WebResponse.InternalServerError();
-                }
-
-                var response = await responseTask;
-                response.RouteFound = true;
-                if (!string.IsNullOrEmpty(_setting.ServerHeader))
-                {
-                    response.Header.Add("Server", _setting.ServerHeader);
-                }
-
-                return response;
+                return await WebResponse.NotFound();
             }
 
-            return await WebResponse.NotFound();
+            Task<WebResponse> responseTask = null;
+            switch (request.Method)
+            {
+                case WebRequestMethod.Get:
+                    responseTask = route.Get(request);
+                    break;
+                case WebRequestMethod.Post:
+                    responseTask = route.Post(request);
+                    break;
+                case WebRequestMethod.Put:
+                    responseTask = route.Put(request);
+                    break;
+                case WebRequestMethod.Delete:
+                    responseTask = route.Delete(request);
+                    break;
+                case WebRequestMethod.Head:
+                    responseTask = route.Head(request);
+                    break;
+            }
+
+            if (responseTask == null)
+            {
+                Logger.Info($"Request method: {request.Method} not supported for request: {request}");
+                return await WebResponse.InternalServerError();
+            }
+
+            var response = await responseTask;
+            response.RouteFound = true;
+            if (!string.IsNullOrEmpty(_setting.ServerHeader))
+            {
+                response.Header.Add("Server", _setting.ServerHeader);
+            }
+
+            return response;
+        }
+
+        private IWebRoute RouteMatcher(WebRequest request)
+        {
+            if (_routes.ContainsKey(request.Path))
+            {
+                return _routes[request.Path];
+            }
+
+            foreach (string key in _routes.Keys)
+            {
+                Match m = Regex.Match(request.Path, key, RegexOptions.IgnoreCase);
+                if (m.Success)
+                {
+                    return _routes[request.Path];
+                }
+            }
+
+            return null;
         }
     }
 }
