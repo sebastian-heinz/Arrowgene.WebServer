@@ -112,7 +112,7 @@ namespace Arrowgene.WebServer.Route
                 Match m = Regex.Match(request.Path, key, RegexOptions.IgnoreCase);
                 if (m.Success)
                 {
-                    return _routes[request.Path];
+                    return _routes[key];
                 }
             }
 
