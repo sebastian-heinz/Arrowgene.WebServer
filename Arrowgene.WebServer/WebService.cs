@@ -30,7 +30,7 @@ namespace Arrowgene.WebServer
             WebResponse response = await _middlewareStack.Start(request);
             if (!response.RouteFound)
             {
-                Logger.Info($"No route or middleware registered for requested Path: {request.Path}");
+                Logger.Info($"No route or middleware registered for requested Path: {request.Path} ({request.Host})");
             }
 
             return response;
